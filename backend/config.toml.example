@@ -1,0 +1,16 @@
+[llm]
+# 默认走 DeepSeek（OpenAI 兼容协议）
+provider = "deepseek"
+# 聊天模型实现类型：deepseek | openai | ollama（未知类型会直接用 ChatDeepSeek；构建失败时回退 ChatDeepSeek）
+model_type = "deepseek"
+model = "deepseek-chat"
+api_key = "your-deepseek-api-key"
+base_url = "https://api.deepseek.com/v1"
+temperature = 0.2
+
+[embedding]
+# RAG 场景下可切到本地 Ollama；未配置时回退到 DeepSeek 配置
+provider = "ollama"
+model = "nomic-embed-text"
+base_url = "http://127.0.0.1:11434"
+use_ollama_for_rag = true
