@@ -5,6 +5,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 
 from backend.app.core.model_factory import get_chat_model
 from backend.app.services.system_prompt import build_system_prompt
+from backend.app.services.vector_memory import get_vector_memory
 from backend.tools.registry import get_core_tools
 
 logger = logging.getLogger(__name__)
@@ -40,9 +41,20 @@ class AgentRuntime:
         self._tools = get_core_tools()
         self._tool_map = {t.name: t for t in self._tools}
 
+    def _build_prompt_with_vector_memory(self, session_id: str, user_message: str) -> str:
+        base = build_system_prompt(session_id)
+        store = get_vector_memory()
+        if store is None or not store.enabled:
+            return base
+        recalled = store.search(session_id=session_id, query=user_message)
+        if not recalled:
+            return base
+        block = "<!-- Vector Memory Matches -->\n\n" + "\n\n".join(f"- {x}" for x in recalled)
+        return f"{base}\n\n{block}"
+
     async def _manual_agent(self, user_message: str, session_id: str) -> str:
         """Tool-calling loop（create_agent 不可用时的回退）。"""
-        system_text = build_system_prompt(session_id)
+        system_text = self._build_prompt_with_vector_memory(session_id, user_message)
         model = self._model.bind_tools(self._tools)
         messages: list = [
             SystemMessage(content=system_text),
@@ -78,7 +90,7 @@ class AgentRuntime:
         return "Stopped: maximum agent steps reached."
 
     async def run(self, user_message: str, session_id: str = "main_session") -> str:
-        system_text = build_system_prompt(session_id)
+        system_text = self._build_prompt_with_vector_memory(session_id, user_message)
         try:
             from langchain.agents import create_agent
 

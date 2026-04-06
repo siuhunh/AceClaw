@@ -15,6 +15,7 @@ from backend.app.core.config import (
     get_settings,
 )
 from backend.app.core.model_factory import init_agent_llm
+from backend.app.services.vector_memory import init_vector_memory
 from backend.tools.registry import init_core_tools
 
 
@@ -74,6 +75,7 @@ def create_app(
     async def on_startup() -> None:
         settings = get_settings()
         init_agent_llm(settings)
+        init_vector_memory(settings)
         init_core_tools(settings)
         skill_manager.reload()
         logger.info("startup env=%s log=%s", str(loaded_env) if loaded_env else "none", resolve_log_path(cli_log_path))

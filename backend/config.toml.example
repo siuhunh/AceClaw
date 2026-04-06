@@ -14,3 +14,18 @@ provider = "ollama"
 model = "nomic-embed-text"
 base_url = "http://127.0.0.1:11434"
 use_ollama_for_rag = true
+
+[vectordb]
+# 启用后，Agent 启动时尝试初始化外部向量库（Milvus）
+enabled = false
+provider = "milvus"
+# uri 与 host/port 二选一；优先 uri
+uri = ""
+host = "127.0.0.1"
+port = "19530"
+token = ""
+db_name = "default"
+collection_name = "aceclaw_memory"
+embedding_dim = 1536
+top_k = 5
+metric_type = "COSINE"

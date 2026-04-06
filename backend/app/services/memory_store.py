@@ -1,8 +1,12 @@
 import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
 from backend.app.core.config import MEMORY_DIR
+from backend.app.services.vector_memory import get_vector_memory
+
+logger = logging.getLogger("ace_claw")
 class MemoryStore:
     def md_path(self, session_id: str) -> Path:
         return MEMORY_DIR / f"{session_id}.md"
@@ -39,6 +43,13 @@ class MemoryStore:
         data["messages"].append({"role": "user", "content": user_message, "ts": ts})
         data["messages"].append({"role": "assistant", "content": assistant_message, "ts": ts})
         jf.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        # Optional vector memory persistence (e.g. Milvus).
+        store = get_vector_memory()
+        if store is not None:
+            try:
+                store.remember_turn(session_id, user_message, assistant_message)
+            except Exception as e:
+                logger.warning("vector memory write failed: %s", e)
 
     async def read(self, session_id: str) -> str:
         path = self.md_path(session_id)

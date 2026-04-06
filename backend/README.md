@@ -21,11 +21,13 @@ python backend/app/main.py --reload --env-dir ./backend --log-path ./backend/log
 2. Fill `llm.api_key` with your DeepSeek API key.
 3. Optional: set `llm.model_type` to `openai` or `ollama` for alternate chat backends; invalid types or build failures fall back to `ChatDeepSeek`.
 4. Optional: set embedding to local Ollama for RAG.
+5. Optional: enable Milvus vector memory via `[vectordb]` / `.env` (`VECTOR_DB_ENABLED=true`).
 
 Fallback behavior:
 
 - If embedding config is missing, system falls back to DeepSeek model config.
 - If embedding provider is `ollama` and enabled, uses local Ollama embeddings.
+- If vector DB init fails (or disabled), service keeps using local `storage/memory/*.md|json` only.
 
 ## Env And Logging
 

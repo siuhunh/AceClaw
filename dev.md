@@ -285,6 +285,14 @@ Agent 每次被调用时都会重新读取所有 Markdown 文件并组装 System
 
 每个组件间以 \n\n 分隔，每个组件带 HTML 注释标签便于调试定位。
 
+### 3.10 向量记忆（可选外部数据库）
+
+- 配置位置：`config.toml` 的 `[vectordb]` 或 `.env`（Milvus 相关变量）。
+- 启用条件：`vectordb.enabled=true`（或 `VECTOR_DB_ENABLED=true`）且 provider 为 `milvus`。
+- 启动行为：服务启动时尝试初始化 Milvus（集合默认 `aceclaw_memory`）；初始化失败时自动降级为仅本地 md/json 记忆，不阻断服务。
+- 对话写入：每轮对话在写入 `storage/memory/{session_id}.md/.json` 后，按配置可同步写入向量库。
+- 对话召回：Agent 每次响应前可按 `session_id + 用户问题` 在向量库中检索 Top-K 相似记忆，并附加到 System Prompt 的 `<!-- Vector Memory Matches -->` 区块。
+
 ## 4. 目录与模块规划（已落地）
 
 ```text
@@ -318,7 +326,7 @@ frontend/             # Next.js 14 App Router，见 §3.7
 
 ## 5. 迭代计划
 
-### Milestone 1（当前）
+### Milestone 1
 
 - 后端目录初始化
 - FastAPI 应用启动

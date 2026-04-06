@@ -43,9 +43,25 @@ class EmbeddingSettings:
 
 
 @dataclass
+class VectorDBSettings:
+    enabled: bool = False
+    provider: str = "milvus"
+    uri: str = ""
+    host: str = "127.0.0.1"
+    port: str = "19530"
+    token: str = ""
+    db_name: str = "default"
+    collection_name: str = "aceclaw_memory"
+    embedding_dim: int = 1536
+    top_k: int = 5
+    metric_type: str = "COSINE"
+
+
+@dataclass
 class AppSettings:
     llm: LLMSettings
     embedding: EmbeddingSettings
+    vectordb: VectorDBSettings
 
 
 def ensure_runtime_dirs() -> None:
@@ -133,6 +149,19 @@ def _from_env() -> dict[str, Any]:
             "base_url": os.getenv("EMBEDDING_BASE_URL", ""),
             "use_ollama_for_rag": os.getenv("USE_OLLAMA_FOR_RAG", "").lower() == "true",
         },
+        "vectordb": {
+            "enabled": os.getenv("VECTOR_DB_ENABLED", "").lower() == "true",
+            "provider": os.getenv("VECTOR_DB_PROVIDER", ""),
+            "uri": os.getenv("MILVUS_URI", ""),
+            "host": os.getenv("MILVUS_HOST", ""),
+            "port": os.getenv("MILVUS_PORT", ""),
+            "token": os.getenv("MILVUS_TOKEN", ""),
+            "db_name": os.getenv("MILVUS_DB_NAME", ""),
+            "collection_name": os.getenv("MILVUS_COLLECTION_NAME", ""),
+            "embedding_dim": os.getenv("MILVUS_EMBEDDING_DIM", ""),
+            "top_k": os.getenv("VECTOR_MEMORY_TOP_K", ""),
+            "metric_type": os.getenv("MILVUS_METRIC_TYPE", ""),
+        },
     }
     return env
 
@@ -154,6 +183,19 @@ def get_settings() -> AppSettings:
             "base_url": "",
             "use_ollama_for_rag": False,
         },
+        "vectordb": {
+            "enabled": False,
+            "provider": "milvus",
+            "uri": "",
+            "host": "127.0.0.1",
+            "port": "19530",
+            "token": "",
+            "db_name": "default",
+            "collection_name": "aceclaw_memory",
+            "embedding_dim": 1536,
+            "top_k": 5,
+            "metric_type": "COSINE",
+        },
     }
 
     merged = _deep_merge(defaults, _from_file())
@@ -161,6 +203,7 @@ def get_settings() -> AppSettings:
 
     llm_map = merged["llm"]
     emb_map = merged["embedding"]
+    vdb_map = merged["vectordb"]
 
     llm = LLMSettings(
         provider=llm_map.get("provider") or "deepseek",
@@ -176,4 +219,17 @@ def get_settings() -> AppSettings:
         base_url=emb_map.get("base_url") or "",
         use_ollama_for_rag=bool(emb_map.get("use_ollama_for_rag", False)),
     )
-    return AppSettings(llm=llm, embedding=embedding)
+    vectordb = VectorDBSettings(
+        enabled=bool(vdb_map.get("enabled", False)),
+        provider=vdb_map.get("provider") or "milvus",
+        uri=vdb_map.get("uri") or "",
+        host=vdb_map.get("host") or "127.0.0.1",
+        port=str(vdb_map.get("port") or "19530"),
+        token=vdb_map.get("token") or "",
+        db_name=vdb_map.get("db_name") or "default",
+        collection_name=vdb_map.get("collection_name") or "aceclaw_memory",
+        embedding_dim=int(vdb_map.get("embedding_dim") or 1536),
+        top_k=int(vdb_map.get("top_k") or 5),
+        metric_type=str(vdb_map.get("metric_type") or "COSINE"),
+    )
+    return AppSettings(llm=llm, embedding=embedding, vectordb=vectordb)
