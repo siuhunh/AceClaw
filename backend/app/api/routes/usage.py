@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from backend.tools.tavily_stats import get_tavily_usage_snapshot
+from backend.app.modules.agent.tools.tavily_stats import get_tavily_usage_snapshot
 
 router = APIRouter(prefix="/api/usage", tags=["usage"])
 

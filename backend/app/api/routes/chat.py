@@ -5,8 +5,8 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
 from backend.app.schemas.chat import ChatRequest, ChatResponse
-from backend.app.services.agent_runtime import AgentRuntime
-from backend.app.services.memory_store import MemoryStore
+from backend.app.modules.agent.runtime import AgentRuntime
+from backend.app.modules.memory.store import MemoryStore
 
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])

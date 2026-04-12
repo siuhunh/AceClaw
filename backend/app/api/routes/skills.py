@@ -1,12 +1,11 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.app.schemas.storage import PathContentBody
-from backend.app.services.skill_manager import SkillManager
-from backend.app.services.storage_files import read_skill_file, write_skill_file
+from backend.app.modules.skills.state import skill_manager
+from backend.app.modules.storage.files import read_skill_file, write_skill_file
 
 
 router = APIRouter(prefix="/api/skills", tags=["skills"])
-skill_manager = SkillManager()
 
 
 @router.get("")

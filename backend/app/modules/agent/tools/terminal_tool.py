@@ -30,7 +30,7 @@ def _is_blocked(command: str) -> bool:
 
 
 def build_terminal_tool() -> BaseTool:
-    """Shell in sandbox directory with blacklist (§3.9.1)."""
+    """Shell in sandbox directory with blacklist."""
     root = str(WORKSPACE_DIR.resolve())
     inner = ShellTool(root_dir=root)
 

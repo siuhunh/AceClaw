@@ -15,8 +15,9 @@ from backend.app.core.config import (
     get_settings,
 )
 from backend.app.core.model_factory import init_agent_llm
-from backend.app.services.vector_memory import init_vector_memory
-from backend.tools.registry import init_core_tools
+from backend.app.modules.agent.tools.registry import init_core_tools
+from backend.app.modules.memory.vector import init_vector_memory
+from backend.app.modules.skills.state import skill_manager
 
 
 def create_app(
@@ -34,7 +35,7 @@ def create_app(
     from backend.app.api.routes.health import router as health_router
     from backend.app.api.routes.memories import router as memories_router
     from backend.app.api.routes.sessions import router as sessions_router
-    from backend.app.api.routes.skills import router as skills_router, skill_manager
+    from backend.app.api.routes.skills import router as skills_router
     from backend.app.api.routes.usage import router as usage_router
 
     app = FastAPI(title="AceClaw Backend", version="0.1.0")

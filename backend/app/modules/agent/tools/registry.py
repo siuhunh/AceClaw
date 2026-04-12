@@ -12,9 +12,9 @@ _tools: list[BaseTool] | None = None
 
 
 def init_core_tools(settings: "AppSettings") -> list[BaseTool]:
-    """Build and register all five core tools (single init per process)."""
+    """Build and register all core LangChain tools (single init per process)."""
     global _tools
-    from backend.tools.bootstrap import build_core_tools
+    from backend.app.modules.agent.tools.bootstrap import build_core_tools
 
     _tools = build_core_tools(settings)
     logger.info("core tools initialized: %s", [t.name for t in _tools])

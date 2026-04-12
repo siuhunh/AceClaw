@@ -1,13 +1,12 @@
 import os
 from typing import Any
 
-import requests
 from bs4 import BeautifulSoup
 from langchain_community.tools import RequestsGetTool
 from langchain_core.tools import BaseTool
 import html2text
 
-from backend.tools.tavily_stats import (
+from backend.app.modules.agent.tools.tavily_stats import (
     extract_tokens_from_tavily_response,
     is_tavily_configured,
     record_tavily_call,
@@ -56,7 +55,7 @@ def _tavily_search(query: str) -> str:
 
 
 class FetchUrlTool(BaseTool):
-    """§3.9.3 — HTTP GET with HTML cleanup; optional Tavily when API key is set."""
+    """HTTP GET with HTML cleanup; optional Tavily when API key is set."""
 
     name: str = "fetch_url"
     description: str = (

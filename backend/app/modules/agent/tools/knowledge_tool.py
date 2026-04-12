@@ -1,13 +1,7 @@
 """
-RAG 检索优化要点（业界常见做法，在代码中落地）：
+RAG 检索（storage/knowledge）：向量 + BM25 融合或纯 BM25。
 
-1. **统一分块**：向量索引与 BM25 使用同一批 `nodes`，避免「向量按整篇、关键词按段」的错位。
-2. **分块尺寸与重叠**：较大 chunk + overlap 提升语义完整度；overlap 降低边界截断损失。
-3. **提高召回再截断**：vector / BM25 略提高 top_k，融合后再按条数与字数截断，减少漏检。
-4. **纯 BM25 路径**：长文档按段落滑窗切块并带 `路径#partN` 伪文档 id，避免整篇仅一个稀疏向量词袋。
-5. **索引失效**：若增删 `storage/knowledge/` 后检索异常，删除 `storage/index/knowledge/` 后重启以全量重建向量索引。
-
-可选后续（未内置）：Cross-Encoder 重排、HyDE、多查询 LLM 扩展、Markdown 结构感知解析、查询改写。
+调参说明见文件内 RAG_* 常量；重建索引：删除 storage/index/knowledge/ 后重启。
 """
 
 import logging
@@ -19,7 +13,6 @@ from backend.app.core.config import INDEX_DIR, KNOWLEDGE_DIR
 
 logger = logging.getLogger(__name__)
 
-# --- 可调参数（与业界默认取向一致：偏召回、再靠融合与上下文长度截断） ---
 RAG_CHUNK_SIZE = 1024
 RAG_CHUNK_OVERLAP = 160
 RAG_VECTOR_TOP_K = 8
@@ -175,7 +168,6 @@ def _try_build_llama_hybrid(settings: Any) -> Callable[[str], str] | None:
                 raise FileNotFoundError("no index")
         except Exception:
             sc = StorageContext.from_defaults()
-            # 与 BM25 共用同一 nodes，保证向量通道与关键词通道块对齐
             index = VectorStoreIndex(nodes, storage_context=sc, show_progress=False)
             index.storage_context.persist(persist_dir=persist)
             logger.info(
@@ -226,7 +218,7 @@ def _try_build_llama_hybrid(settings: Any) -> Callable[[str], str] | None:
 
 
 def build_knowledge_search_tool(settings: Any) -> BaseTool:
-    """§3.9.5 — hybrid when LlamaIndex + embeddings work; else BM25 on text files."""
+    """Hybrid when LlamaIndex + embeddings work; else BM25 on text files."""
     hybrid = _try_build_llama_hybrid(settings)
     bm25_only = _bm25_search_factory()
     runner = hybrid or bm25_only

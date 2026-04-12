@@ -1,13 +1,13 @@
 """
-3.9 System Prompt：每次 Agent 调用时从 backend/workspace/*.md 重新读取并组装，
-顺序与 dev.md 一致；技能列表可通过 {{AUTO_SKILLS}} 注入；
-会话记忆分为短期（最近消息窗口）与长期（抽取要点 + 可选 _longterm.md），全文 transcript 仅落盘不整段注入。
+System Prompt：每次 Agent 调用时从 backend/workspace/*.md 重新读取并组装；
+技能列表通过 {{AUTO_SKILLS}} 注入；会话记忆分短期窗口与长期抽取要点。
 """
 
 import json
 from pathlib import Path
 
 from backend.app.core.config import MEMORY_DIR, SYSTEM_PROMPT_WORKSPACE, get_settings
+from backend.app.modules.skills.state import skill_manager
 
 
 def _read_text(path: Path) -> str:
@@ -38,8 +38,6 @@ def _load_session_memory_bundle(session_id: str) -> tuple[list[dict], list[str]]
 
 
 def _auto_skills_block() -> str:
-    from backend.app.api.routes.skills import skill_manager
-
     lines = ["<available_skills>"]
     for s in skill_manager.list():
         lines.append(f"- **{s.name}** (`{s.path}`): {s.description}")
@@ -54,7 +52,6 @@ def build_system_prompt(session_id: str) -> str:
     blocks: list[str] = []
     mem_cfg = get_settings().memory
 
-    # 1) Skills Snapshot
     snap_path = ws / "SKILLS_SNAPSHOT.md"
     snap = _read_text(snap_path)
     if not snap:
@@ -65,23 +62,19 @@ def build_system_prompt(session_id: str) -> str:
         snap = snap + "\n\n" + _auto_skills_block()
     blocks.append(snap)
 
-    # 2) Soul
     soul = _read_text(ws / "SOUL.md")
     blocks.append(soul if soul else "<!-- Soul -->\n\n（未找到 SOUL.md，请在 backend/workspace/ 补充核心设定。）")
 
-    # 3) Identity
     ident = _read_text(ws / "IDENTITY.md")
     blocks.append(
         ident if ident else "<!-- Identity -->\n\n（未找到 IDENTITY.md，请补充自我认知。）"
     )
 
-    # 4) User Profile
     user = _read_text(ws / "USER.md")
     blocks.append(
         user if user else "<!-- User Profile -->\n\n（未找到 USER.md，请补充用户画像。）"
     )
 
-    # 5) Agents Guide
     agents = _read_text(ws / "AGENTS.md")
     blocks.append(
         agents

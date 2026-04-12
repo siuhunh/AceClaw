@@ -3,7 +3,7 @@ from langchain_experimental.tools import PythonREPLTool
 
 
 def build_python_repl_tool() -> StructuredTool:
-    """§3.9.2 — stateful Python REPL (langchain-experimental)."""
+    """Stateful Python REPL (langchain-experimental)."""
     inner = PythonREPLTool()
 
     def run_python(code: str) -> str:

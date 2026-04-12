@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.app.schemas.storage import PathContentBody
-from backend.app.services.memory_store import MemoryStore
-from backend.app.services.storage_files import read_memory_file, write_memory_file
+from backend.app.modules.memory.store import MemoryStore
+from backend.app.modules.storage.files import read_memory_file, write_memory_file
 
 
 router = APIRouter(prefix="/api/memories", tags=["memories"])

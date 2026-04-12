@@ -5,9 +5,9 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 
 from backend.app.core.config import get_settings
 from backend.app.core.model_factory import get_chat_model
-from backend.app.services.system_prompt import build_system_prompt
-from backend.app.services.vector_memory import get_vector_memory
-from backend.tools.registry import get_core_tools
+from backend.app.modules.agent.system_prompt import build_system_prompt
+from backend.app.modules.agent.tools.registry import get_core_tools
+from backend.app.modules.memory.vector import get_vector_memory
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ from backend.app.core.config import BASE_DIR
 
 
 def build_read_file_tool() -> BaseTool:
-    """§3.9.4 — read files under backend project root only."""
+    """Read files under backend project root only."""
     tool = ReadFileTool(root_dir=str(BASE_DIR.resolve()))
     tool.name = "read_file"
     tool.description = (

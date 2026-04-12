@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from backend.app.services.memory_store import MemoryStore
+from backend.app.modules.memory.store import MemoryStore
 
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])

@@ -4,8 +4,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from backend.app.core.config import MEMORY_DIR, get_settings
-from backend.app.services.memory_extraction import extract_long_term_bullets, merge_bullets
-from backend.app.services.vector_memory import get_vector_memory
+from backend.app.modules.memory.extraction import extract_long_term_bullets, merge_bullets
+from backend.app.modules.memory.vector import get_vector_memory
 
 logger = logging.getLogger("ace_claw")
 
